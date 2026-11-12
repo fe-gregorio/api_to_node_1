@@ -1,0 +1,22 @@
+import requests
+
+url = "https://www.thecolorapi.com/scheme"
+
+my_data = {
+    'hex': '6A5ACD',
+    'mode': 'analogic',
+    'count': 5
+}
+
+response = requests.get(url, params=my_data)
+data = response.json()
+
+#print(response.status_code)
+#print(len(data))
+#print(data.keys())
+
+#dict_keys(['mode', 'count', 'colors', 'seed', 'image', '_links', '_embedded'])
+
+colors = data['colors']
+print(colors[0]['hex']['value'])
+print (response.url)
