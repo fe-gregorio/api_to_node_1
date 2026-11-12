@@ -1,7 +1,0 @@
-.DS_Store
-.ipynb_checkpoints
-keys/
-venv/
-.cache-*
-*.mp3
-*.mp4
