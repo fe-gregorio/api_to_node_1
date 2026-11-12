@@ -29,13 +29,16 @@ colors = data['colors']
 hex_colors = [color['hex']['value'] for color in colors]
 #print(hex_colors)
 
-palette = Image.new('RGB', (100,100), hex_colors[0])
+#palette = Image.new('RGB', (100,100), hex_colors[0])
 #palette.show()
 
-palette = Image.new('RGB', (500, 100), 'white')
+palette_width = 500
+palette_height = 140
+
+palette = Image.new('RGB', (palette_width, palette_height), 'white')
 draw = ImageDraw.Draw(palette)
 
-block_width = 100
+block_width = palette.width // len(hex_colors)
 
 #for i, color in enumerate(hex_colors):
 #    print(i, color)
@@ -45,5 +48,7 @@ for i, color in enumerate(hex_colors):
     x1 = (i + 1) * block_width
 
     draw.rectangle((x0, 0, x1, 100), fill=color)
+    draw.text((x0 + 20, 112), color, fill='black')
 
 palette.show()
+palette.save("palette.png")
