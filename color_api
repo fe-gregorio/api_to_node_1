@@ -1,4 +1,6 @@
 import requests
+from PIL import Image
+from PIL import Image, ImageDraw
 
 url = "https://www.thecolorapi.com/scheme"
 
@@ -17,6 +19,31 @@ data = response.json()
 
 #dict_keys(['mode', 'count', 'colors', 'seed', 'image', '_links', '_embedded'])
 
+#print (response.url)
 colors = data['colors']
-print(colors[0]['hex']['value'])
-print (response.url)
+#print(colors[0]['hex']['value'])
+
+#for color in colors:
+#   print(color['hex']['value'])
+
+hex_colors = [color['hex']['value'] for color in colors]
+#print(hex_colors)
+
+palette = Image.new('RGB', (100,100), hex_colors[0])
+#palette.show()
+
+palette = Image.new('RGB', (500, 100), 'white')
+draw = ImageDraw.Draw(palette)
+
+block_width = 100
+
+#for i, color in enumerate(hex_colors):
+#    print(i, color)
+
+for i, color in enumerate(hex_colors):
+    x0 = i * block_width
+    x1 = (i + 1) * block_width
+
+    draw.rectangle((x0, 0, x1, 100), fill=color)
+
+palette.show()
