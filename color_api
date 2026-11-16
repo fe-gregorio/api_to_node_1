@@ -3,11 +3,17 @@ from PIL import Image, ImageDraw
 
 url = "https://www.thecolorapi.com/scheme"
 
+#COLOR
+valid_hex_characters = "0123456789abcdefABCDEF"
+user_input_color = input("Enter a hex color code (without #): ")
+while len(user_input_color) != 6 or not all(char in valid_hex_characters for char in user_input_color):
+    print("Invalid hex color code. Please enter a valid 6-character hex code.")
+    user_input_color = input("Enter a hex color code (without #): ")    
 
-user_input = input("Enter a hex color code (without #): ")
 
+#COLOR MODES
 valid_modes = ['monochrome', 'monochrome-dark', 'monochrome-light', 'analogic', 'complement', 'analogic-complement', 'triad', 'quad']
-user_input_mode = input("Enter a color mode (e.g., 'analogic', 'monochrome', 'complement', etc.): ").strip().lower()
+user_input_mode = input("Enter a color mode (options: 'monochrome', 'monochrome-dark', 'monochrome-light', 'analogic', 'complement', 'analogic-complement', 'triad', 'quad')").strip().lower()
 
 while user_input_mode not in valid_modes:
     print("Invalid mode. Try again!")
@@ -15,18 +21,22 @@ while user_input_mode not in valid_modes:
 
 print("You selected:", user_input_mode)
 
-
+#COUNT
+user_input_count = input("Enter the number of colors you want in the palette (1-10): ")
+while not user_input_count.isdigit() or not (1 <= int(user_input_count) <= 10):
+    print("Invalid count. Please enter a number between 1 and 10.")
+    user_input_count = input("Enter the number of colors (1-10): ")
+user_input_count = int(user_input_count)
 
 my_data = {
-    'hex': user_input,
+    'hex': user_input_color,
     'mode': user_input_mode,
-    'count': 5
+    'count': user_input_count
 }
 
 response = requests.get(url, params=my_data)
 data = response.json()
 print (response.url)
-
 
 #dict_keys(['mode', 'count', 'colors', 'seed', 'image', '_links', '_embedded'])
 
@@ -34,24 +44,28 @@ colors = data['colors']
 hex_colors = [color['hex']['value'] for color in colors]
 color_names = [color['name']['value'] for color in colors]
 
-palette_width = 500
-palette_height = 140
+#DRAW PALETTE
+def create_palette(hex_colors, color_names):
+    
+    block_width = 100
+    palette_width = len(hex_colors) * block_width
+    palette_height = 140
 
-palette = Image.new('RGB', (palette_width, palette_height), 'white')
-draw = ImageDraw.Draw(palette)
+    palette = Image.new('RGB', (palette_width, palette_height), 'white')
+    draw = ImageDraw.Draw(palette)
 
-block_width = palette.width // len(hex_colors)
+    block_width = palette.width // len(hex_colors)
 
-#for i, color in enumerate(hex_colors):
-#    print(i, color)
+    for i, color in enumerate(hex_colors):
+        x0 = i * block_width
+        x1 = (i + 1) * block_width
 
-for i, color in enumerate(hex_colors):
-    x0 = i * block_width
-    x1 = (i + 1) * block_width
+        draw.rectangle((x0, 0, x1, 100), fill=color)
+        draw.text((x0 + 20, 112), color, fill='black')
+        draw.text((x0 + 20, 122), color_names[i], fill='black')
 
-    draw.rectangle((x0, 0, x1, 100), fill=color)
-    draw.text((x0 + 20, 112), color, fill='black')
-    draw.text((x0 + 20, 122), color_names[i], fill='black')
+    return palette
+    palette.save("palette.png")
 
-palette.show()
-palette.save("palette.png")
+create_palette(hex_colors, color_names).show()
+
