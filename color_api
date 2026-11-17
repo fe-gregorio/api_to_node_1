@@ -53,22 +53,20 @@ def request_color(user_input_color, user_input_mode, user_input_count):
 #DRAW PALETTE
 def create_palette(hex_colors, color_names):
     
-    block_width = 100
+    block_width = 110
     palette_width = len(hex_colors) * block_width
-    palette_height = 140
+    palette_height = 150
 
     palette = Image.new('RGB', (palette_width, palette_height), 'white')
     draw = ImageDraw.Draw(palette)
-
-    block_width = palette.width // len(hex_colors)
 
     for i, color in enumerate(hex_colors):
         x0 = i * block_width
         x1 = (i + 1) * block_width
 
         draw.rectangle((x0, 0, x1, 100), fill=color)
-        draw.text((x0 + 20, 112), color, fill='black')
-        draw.text((x0 + 20, 122), color_names[i], fill='black')
+        draw.text((x0 + 20, 110), color, fill='black')
+        draw.text((x0 + 20, 123), color_names[i], fill='black')
 
     return palette
     
