@@ -7,12 +7,19 @@ url = "https://www.thecolorapi.com/scheme"
 
 
 def get_user_inputs():
+    
+    #COLOR FROM IMAGE
+    image_path = input("Enter the image filename: ")
+    user_input_color = extract_image_color(image_path)
+    print("Extracted color:", user_input_color) 
+    
+    
     #COLOR
-    valid_hex_characters = "0123456789abcdefABCDEF"
-    user_input_color = input("Enter a hex color code (without #): ")
-    while len(user_input_color) != 6 or not all(char in valid_hex_characters for char in user_input_color):
-        print("Invalid hex color code. Please enter a valid 6-character hex code.")
-        user_input_color = input("Enter a hex color code (without #): ")    
+    # valid_hex_characters = "0123456789abcdefABCDEF"
+    # user_input_color = input("Enter a hex color code (without #): ")
+    # while len(user_input_color) != 6 or not all(char in valid_hex_characters for char in user_input_color):
+    #     print("Invalid hex color code. Please enter a valid 6-character hex code.")
+    #     user_input_color = input("Enter a hex color code (without #): ")    
 
     #COLOR MODES
     valid_modes = ['monochrome', 'monochrome-dark', 'monochrome-light', 'analogic', 'complement', 'analogic-complement', 'triad', 'quad']
@@ -22,7 +29,7 @@ def get_user_inputs():
         print("Invalid mode. Try again!")
         user_input_mode = input("Enter a color mode: ").strip().lower()
 
-    print("You selected:", user_input_mode)
+    # print("You selected:", user_input_mode)
 
     #COUNT
     user_input_count = input("Enter the number of colors you want in the palette (1-10): ")
@@ -32,6 +39,19 @@ def get_user_inputs():
     user_input_count = int(user_input_count)
 
     return user_input_color, user_input_mode, user_input_count
+
+def extract_image_color(image_path):
+    image = Image.open(image_path).convert('RGB')
+    image = image.resize((100, 100))
+
+    simplified = image.quantize(colors=5).convert('RGB')
+    color_counts = simplified.getcolors()
+
+    dominant_rgb = max(color_counts)[1]
+
+    hex_color = f"{dominant_rgb[0]:02X}{dominant_rgb[1]:02X}{dominant_rgb[2]:02X}"
+
+    return hex_color
 
 
 def request_color(user_input_color, user_input_mode, user_input_count):
