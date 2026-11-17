@@ -3,46 +3,52 @@ from PIL import Image, ImageDraw
 
 url = "https://www.thecolorapi.com/scheme"
 
-#COLOR
-valid_hex_characters = "0123456789abcdefABCDEF"
-user_input_color = input("Enter a hex color code (without #): ")
-while len(user_input_color) != 6 or not all(char in valid_hex_characters for char in user_input_color):
-    print("Invalid hex color code. Please enter a valid 6-character hex code.")
-    user_input_color = input("Enter a hex color code (without #): ")    
+
+def get_user_inputs():
+    #COLOR
+    valid_hex_characters = "0123456789abcdefABCDEF"
+    user_input_color = input("Enter a hex color code (without #): ")
+    while len(user_input_color) != 6 or not all(char in valid_hex_characters for char in user_input_color):
+        print("Invalid hex color code. Please enter a valid 6-character hex code.")
+        user_input_color = input("Enter a hex color code (without #): ")    
+
+    #COLOR MODES
+    valid_modes = ['monochrome', 'monochrome-dark', 'monochrome-light', 'analogic', 'complement', 'analogic-complement', 'triad', 'quad']
+    user_input_mode = input("Enter a color mode (options: 'monochrome', 'monochrome-dark', 'monochrome-light', 'analogic', 'complement', 'analogic-complement', 'triad', 'quad')").strip().lower()
+
+    while user_input_mode not in valid_modes:
+        print("Invalid mode. Try again!")
+        user_input_mode = input("Enter a color mode: ").strip().lower()
+
+    print("You selected:", user_input_mode)
+
+    #COUNT
+    user_input_count = input("Enter the number of colors you want in the palette (1-10): ")
+    while not user_input_count.isdigit() or not (1 <= int(user_input_count) <= 10):
+        print("Invalid count. Please enter a number between 1 and 10.")
+        user_input_count = input("Enter the number of colors (1-10): ")
+    user_input_count = int(user_input_count)
+
+    return user_input_color, user_input_mode, user_input_count
 
 
-#COLOR MODES
-valid_modes = ['monochrome', 'monochrome-dark', 'monochrome-light', 'analogic', 'complement', 'analogic-complement', 'triad', 'quad']
-user_input_mode = input("Enter a color mode (options: 'monochrome', 'monochrome-dark', 'monochrome-light', 'analogic', 'complement', 'analogic-complement', 'triad', 'quad')").strip().lower()
+def request_color(user_input_color, user_input_mode, user_input_count):
+    my_data = {
+        'hex': user_input_color,
+        'mode': user_input_mode,
+        'count': user_input_count
+    }
 
-while user_input_mode not in valid_modes:
-    print("Invalid mode. Try again!")
-    user_input_mode = input("Enter a color mode: ").strip().lower()
+    response = requests.get(url, params=my_data)
+    data = response.json()
+    print(response.url)
 
-print("You selected:", user_input_mode)
+    colors = data['colors']
+    hex_colors = [color['hex']['value'] for color in colors]
+    color_names = [color['name']['value'] for color in colors]
 
-#COUNT
-user_input_count = input("Enter the number of colors you want in the palette (1-10): ")
-while not user_input_count.isdigit() or not (1 <= int(user_input_count) <= 10):
-    print("Invalid count. Please enter a number between 1 and 10.")
-    user_input_count = input("Enter the number of colors (1-10): ")
-user_input_count = int(user_input_count)
+    return hex_colors, color_names
 
-my_data = {
-    'hex': user_input_color,
-    'mode': user_input_mode,
-    'count': user_input_count
-}
-
-response = requests.get(url, params=my_data)
-data = response.json()
-print (response.url)
-
-#dict_keys(['mode', 'count', 'colors', 'seed', 'image', '_links', '_embedded'])
-
-colors = data['colors']
-hex_colors = [color['hex']['value'] for color in colors]
-color_names = [color['name']['value'] for color in colors]
 
 #DRAW PALETTE
 def create_palette(hex_colors, color_names):
@@ -65,7 +71,12 @@ def create_palette(hex_colors, color_names):
         draw.text((x0 + 20, 122), color_names[i], fill='black')
 
     return palette
-    palette.save("palette.png")
+    
 
-create_palette(hex_colors, color_names).show()
 
+user_input_color, user_input_mode, user_input_count = get_user_inputs()
+hex_colors, color_names = request_color(user_input_color, user_input_mode, user_input_count)
+
+palette_image = create_palette(hex_colors, color_names)
+palette_image.show()
+palette_image.save("palette.png")
