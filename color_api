@@ -1,3 +1,5 @@
+from dbm import error
+
 import requests
 from PIL import Image, ImageDraw
 
@@ -39,9 +41,14 @@ def request_color(user_input_color, user_input_mode, user_input_count):
         'count': user_input_count
     }
 
-    response = requests.get(url, params=my_data)
-    data = response.json()
-    print(response.url)
+    try:
+        response = requests.get(url, params=my_data, timeout=15)
+        response.raise_for_status()
+        data = response.json()
+
+    except requests.exceptions.RequestException as error:
+        print("API request failed:", error)
+        return [], []
 
     colors = data['colors']
     hex_colors = [color['hex']['value'] for color in colors]
@@ -53,7 +60,7 @@ def request_color(user_input_color, user_input_mode, user_input_count):
 #DRAW PALETTE
 def create_palette(hex_colors, color_names):
     
-    block_width = 110
+    block_width = 120
     palette_width = len(hex_colors) * block_width
     palette_height = 150
 
